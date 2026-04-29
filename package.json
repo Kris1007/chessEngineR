@@ -1,0 +1,17 @@
+{
+  "name": "chess_engine",
+  "scripts": {
+    "client": "cd my-react-app && bun run dev",
+    "server": "bun run --hot server/index.ts",
+    "dev": "concurrently \"bun run server\" \"bun run client\""
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "hono": "^4.12.15",
+    "react-bootstrap": "^2.10.10"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "concurrently": "^9.2.1"
+  }
+}
