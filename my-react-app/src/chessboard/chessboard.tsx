@@ -1,9 +1,29 @@
+import { useEffect } from "react";
+import type { GameStatus } from "../App";
+
 type Props = {
   setPgn: (pgn: string) => void;
-  setIsCheck: (check: boolean) => void;
+  setStatus: (status: GameStatus) => void;
 };
 
-export default function Chessboard({ setPgn, setIsCheck }: Props) {
+declare global {
+  interface Window {
+    updateReactState?: (pgn: string, status: GameStatus) => void;
+  }
+}
+
+export default function Chessboard({ setPgn, setStatus }: Props) {
+  useEffect(() => {
+    window.updateReactState = (nextPgn, nextStatus) => {
+      setPgn(nextPgn);
+      setStatus(nextStatus);
+    };
+
+    return () => {
+      delete window.updateReactState;
+    };
+  }, [setPgn, setStatus]);
+
   return (
     <div style={{
         display: "flex",
