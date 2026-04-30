@@ -1,4 +1,9 @@
-function Chessboard() {
+type Props = {
+  setPgn: (pgn: string) => void;
+  setIsCheck: (check: boolean) => void;
+};
+
+export default function Chessboard({ setPgn, setIsCheck }: Props) {
   return (
     <div style={{
         display: "flex",
@@ -14,5 +19,3 @@ function Chessboard() {
     </div>
   )
 }
-
-export default Chessboard
