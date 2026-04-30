@@ -1,7 +1,74 @@
-var config = {
-  position: "start",
-  draggable: true,
-  pieceTheme: "https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png",
-};
+var game = new Chess();
+var board1 = null;
+var statusElement = document.getElementById("status");
+var fenElement = document.getElementById("fen");
+var pgnElement = document.getElementById("pgn");
 
-var board1 = ChessBoard("board1", config);
+function onDragStart(source, piece) {
+  if (game.game_over()) return false;
+  if (
+    (game.turn() === "w" && piece.search(/^b/) !== -1) ||
+    (game.turn() === "b" && piece.search(/^w/) !== -1)
+  ) {
+    return false;
+  }
+}
+
+function onDrop(source, target) {
+  var move = game.move({
+    from: source,
+    to: target,
+    promotion: "q",
+  });
+  if (move === null) return "snapback";
+  updateStatus();
+}
+
+function onSnapEnd() {
+  board1.position(game.fen());
+}
+
+function updateStatus() {
+  var status = "";
+  var moveColor = game.turn() === "b" ? "Black" : "White";
+  if (game.in_checkmate()) {
+    status = "Game over, " + moveColor + " is in checkmate.";
+  } else if (game.in_draw()) {
+    status = "Game over, drawn position";
+  } else {
+    status = moveColor + " to move";
+    if (game.in_check()) status += ", " + moveColor + " is in check";
+  }
+  statusElement.innerHTML = status;
+  fenElement.innerHTML = game.fen();
+  pgnElement.innerHTML = game.pgn();
+  
+  // If we're running inside the React iframe, notify the parent window.
+  var bridge =
+    (window.parent && window.parent.updateReactState) || window.updateReactState;
+  if (bridge) {
+    var turn = game.turn();
+    var checkColor = game.in_check() ? (turn === "w" ? "White" : "Black") : null;
+    var checkmateColor = game.in_checkmate()
+      ? (turn === "w" ? "White" : "Black")
+      : null;
+    bridge(game.pgn(), {
+      inCheck: game.in_check(),
+      checkColor: checkColor,
+      inCheckmate: game.in_checkmate(),
+      checkmateColor: checkmateColor,
+      inDraw: game.in_draw(),
+    });
+  }
+}
+
+var config = {
+  draggable: true,
+  position: "start",
+  pieceTheme: "https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png",
+  onDragStart: onDragStart,
+  onDrop: onDrop,
+  onSnapEnd: onSnapEnd,
+};
+board1 = ChessBoard("board1", config);
+updateStatus();
