@@ -4,6 +4,7 @@ import ProgressBar from "react-bootstrap/ProgressBar";
 import Header from "./Header";
 import Footer from "./Footer";
 import SidePanel from "./SidePanel";
+import CameraTracker from "./CameraTracker";
 import type { GameStatus, TopMove } from "./App";
 
 const initialStatus: GameStatus = {
@@ -16,6 +17,24 @@ const initialStatus: GameStatus = {
 
 export default function Home() {
   const [pgn, setPgn] = useState("");
+
+  const handleMoveDetected = (squares: string[]) => {
+    const iframe = document.querySelector('iframe');
+    if (iframe && iframe.contentWindow && (iframe.contentWindow as any).makeMoveFromReact) {
+      const makeMove = (iframe.contentWindow as any).makeMoveFromReact;
+      // Try every possible pair of changed squares until one is a legal chess move
+      for (let i = 0; i < squares.length; i++) {
+        for (let j = 0; j < squares.length; j++) {
+          if (i !== j) {
+            if (makeMove(squares[i], squares[j])) {
+              console.log(`Successfully moved ${squares[i]} to ${squares[j]}`);
+              return;
+            }
+          }
+        }
+      }
+    }
+  };
   const [fen, setFen] = useState("");
   const [status, setStatus] = useState<GameStatus>(initialStatus);
   const [topMoves, setTopMoves] = useState<TopMove[]>([]);
@@ -73,6 +92,9 @@ export default function Home() {
         <div className="home-side-panel-column">
           <SidePanel pgn={pgn} status={status} topMoves={topMoves} />
         </div>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+        <CameraTracker onMoveDetected={handleMoveDetected} />
       </div>
       <Footer />
     </div>

@@ -156,4 +156,16 @@ if (copyFenBtn) {
   });
 }
 
+window.makeMoveFromReact = function(source, target) {
+  var move = game.move({
+    from: source,
+    to: target,
+    promotion: "q",
+  });
+  if (move === null) return false;
+  board1.position(game.fen());
+  updateStatus();
+  return true;
+};
+
 updateStatus();
