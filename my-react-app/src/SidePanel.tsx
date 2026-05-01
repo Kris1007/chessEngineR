@@ -22,12 +22,7 @@ function formatMoveLines(pgn: string) {
         return lines;
       }
 
-      const lastLine = lines[lines.length - 1];
-      if (/^\d+\.$/.test(lastLine)) {
-        lines[lines.length - 1] = `${lastLine} ${token}`;
-      } else {
-        lines.push(token);
-      }
+      lines[lines.length - 1] = `${lines[lines.length - 1]} ${token}`;
 
       return lines;
     }, [])
