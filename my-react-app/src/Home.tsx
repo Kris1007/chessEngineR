@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Chessboard from "./chessboard/chessboard";
+import ProgressBar from "react-bootstrap/ProgressBar";
 import Header from "./Header";
 import Footer from "./Footer";
 import SidePanel from "./SidePanel";
@@ -47,7 +48,26 @@ export default function Home() {
     <div className="home-page">
       <Header />
       <div className="home-game-layout">
-        <div className="home-board-column">
+        <div className="home-board-column" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+          <ProgressBar style={{ width: "420px", marginTop: "10px" }}>
+            <ProgressBar
+              style={{ backgroundColor: "#FFB090" }}
+              now={(() => {
+                if (status.inCheckmate) {
+                  return status.checkmateColor === "White" ? 0 : 100;
+                }
+                if (status.inDraw) return 50;
+                if (!topMoves.length || !topMoves[0].eval) return 50;
+                const evalStr = String(topMoves[0].eval).trim();
+                if (evalStr.includes('M') || evalStr.includes('#')) {
+                  return evalStr.startsWith('-') ? 0 : 100;
+                }
+                const val = parseFloat(evalStr);
+                if (isNaN(val)) return 50;
+                return Math.max(0, Math.min(100, 50 + val * 10));
+              })()} 
+            />
+          </ProgressBar>
           <Chessboard setPgn={setPgn} setFen={setFen} setStatus={setStatus} />
         </div>
         <div className="home-side-panel-column">
