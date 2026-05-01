@@ -12,6 +12,11 @@ export type GameStatus = {
   inDraw: boolean;
 };
 
+export type TopMove = {
+  move: string;
+  eval: string;
+};
+
 export default function App() {
   return (
     <BrowserRouter>
