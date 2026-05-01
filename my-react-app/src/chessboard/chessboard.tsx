@@ -25,23 +25,17 @@ export default function Chessboard({ setPgn, setStatus }: Props) {
   }, [setPgn, setStatus]);
 
   return (
-    <div style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-    }}>
+    <div className="chessboard-panel">
         <iframe
         src="/chessboard/index.html"
         title="Chessboard"
-        style={{ width: "420px", height: "460px", border: "none" }}
+        className="chessboard-frame"
         />
-        <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
-        <button id="flipOrientationBtn" style={{backgroundColor: "#FFB090", borderColor: "#FFB090"}}>Flip Orientation</button>
-        <button id="setStartBtn" style={{backgroundColor: "#FFB090", borderColor: "#FFB090"}}>Start Position</button>
-        <button id="saveButton" style={{backgroundColor: "#FFB090", borderColor: "#FFB090"}}>Save</button>
-        <button id="copyFen" style={{backgroundColor: "#FFB090", borderColor: "#FFB090"}}>&#128203; FEN</button>
+        <div className="board-actions">
+        <button id="flipOrientationBtn" className="board-action-button">Flip Orientation</button>
+        <button id="setStartBtn" className="board-action-button">Start Position</button>
+        <button id="saveButton" className="board-action-button">Save</button>
+        <button id="copyFen" className="board-action-button">&#128203; FEN</button>
         </div>
     </div>
   )

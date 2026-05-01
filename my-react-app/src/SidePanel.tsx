@@ -17,9 +17,8 @@ export default function SidePanel({ pgn, status }: SidePanelProps) {
 
   return (
     <div
+      className="side-panel"
       style={{
-        height: 460,
-        width: 300,
         display: "flex",
         flexDirection: "column",
         padding: 14,
