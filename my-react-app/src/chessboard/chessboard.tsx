@@ -30,7 +30,6 @@ export default function Chessboard({ setPgn, setStatus }: Props) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        height: "100vh",
     }}>
         <iframe
         src="/chessboard/index.html"

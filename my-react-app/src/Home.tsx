@@ -18,21 +18,13 @@ export default function Home() {
   const [status, setStatus] = useState<GameStatus>(initialStatus);
 
   return (
-    <div style={{ backgroundColor: "#FFE5B4" }}>
+    <div className="home-page">
       <Header />
-      <div style={{ display: "flex", flex: 1 }}>
-        <div style={{ flex: 3 }}>
+      <div className="home-game-layout">
+        <div className="home-board-column">
           <Chessboard setPgn={setPgn} setStatus={setStatus} />
         </div>
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100vh",
-          }}
-        >
+        <div className="home-side-panel-column">
           <SidePanel pgn={pgn} status={status} />
         </div>
       </div>

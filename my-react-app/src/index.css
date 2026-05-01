@@ -1,0 +1,40 @@
+.home-page {
+  min-height: 100vh;
+  background-color: #ffe5b4;
+}
+
+.home-game-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  min-height: calc(100vh - 112px);
+  padding: 24px;
+}
+
+.home-board-column {
+  display: flex;
+  justify-content: center;
+  flex: 0 1 520px;
+}
+
+.home-side-panel-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 1 320px;
+}
+
+@media (max-width: 900px) {
+  .home-game-layout {
+    flex-direction: column;
+    gap: 20px;
+    min-height: auto;
+  }
+
+  .home-board-column,
+  .home-side-panel-column {
+    width: 100%;
+    flex: none;
+  }
+}
