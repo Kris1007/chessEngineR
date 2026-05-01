@@ -122,14 +122,18 @@ export default function CameraTracker({ onMoveDetected }: CameraTrackerProps) {
   };
 
   return (
-    <div style={{ padding: "10px", border: "1px solid #ccc", borderRadius: "8px", background: "#f9f9f9" }}>
-      <h4>Physical Board Tracker</h4>
-      <div style={{ marginBottom: "10px" }}>
-        Status: <span style={{ color: connected ? "green" : "red", fontWeight: "bold" }}>{connected ? "Connected to CV Engine" : "Disconnected"}</span>
+    <div className="camera-tracker">
+      <h4 className="camera-tracker-title">Physical Board Tracker</h4>
+      <div className="camera-tracker-status">
+        Status:{" "}
+        <span className={connected ? "status-connected" : "status-disconnected"}>
+          {connected ? "Connected to CV Engine" : "Disconnected"}
+        </span>
       </div>
 
       <div
-        style={{ position: "relative", display: "inline-block", cursor: calibrating ? "crosshair" : "default" }}
+        className="camera-video-shell"
+        style={{ cursor: calibrating ? "crosshair" : "default" }}
         onClick={handleVideoClick}
       >
         <video
@@ -138,7 +142,7 @@ export default function CameraTracker({ onMoveDetected }: CameraTrackerProps) {
           playsInline
           muted
           width={400}
-          style={{ borderRadius: "8px", display: "block" }}
+          className="camera-video"
         />
 
         {/* Draw calibration dots */}
@@ -149,13 +153,10 @@ export default function CameraTracker({ onMoveDetected }: CameraTrackerProps) {
               position: "absolute",
               left: `${c.x * 100}%`,
               top: `${c.y * 100}%`,
-              width: "10px",
-              height: "10px",
-              background: "red",
-              borderRadius: "50%",
               transform: "translate(-50%, -50%)",
               pointerEvents: "none"
             }}
+            className="calibration-dot"
           />
         ))}
       </div>
@@ -163,13 +164,14 @@ export default function CameraTracker({ onMoveDetected }: CameraTrackerProps) {
       {/* Hidden canvas for frame capture */}
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
-      <div style={{ marginTop: "10px" }}>
+      <div className="camera-actions">
         {corners.length === 4 ? (
-          <button onClick={() => { setCorners([]); setCalibrating(true); }}>
+          <button className="camera-button" onClick={() => { setCorners([]); setCalibrating(true); }}>
             Recalibrate Corners
           </button>
         ) : (
           <button
+            className="camera-button"
             onClick={() => setCalibrating(true)}
             disabled={calibrating}
           >
@@ -177,11 +179,11 @@ export default function CameraTracker({ onMoveDetected }: CameraTrackerProps) {
           </button>
         )}
       </div>
-      <p style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
+      <p className="camera-helper-text">
         * Point a webcam at the physical board. Click the 4 outer corners of the board starting from top-left, going clockwise.
       </p>
       {debugInfo && (
-        <div style={{ marginTop: "8px", padding: "6px 10px", background: "#eee", borderRadius: "6px", fontFamily: "monospace", fontSize: "12px" }}>
+        <div className="camera-debug">
           CV Debug: {debugInfo}
         </div>
       )}

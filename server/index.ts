@@ -1,12 +1,51 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { OAuth2Client } from "google-auth-library";
 import { spawn } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
 
 const app = new Hono();
+const googleClient = new OAuth2Client();
 
 app.use("*", cors());
+
+app.post("/api/auth/google", async (c) => {
+  const { credential } = await c.req.json();
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+
+  if (!clientId) {
+    return c.json({ error: "GOOGLE_CLIENT_ID is not configured" }, 500);
+  }
+
+  if (!credential) {
+    return c.json({ error: "Google credential is required" }, 400);
+  }
+
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: clientId,
+    });
+    const payload = ticket.getPayload();
+
+    if (!payload?.sub || !payload.email) {
+      return c.json({ error: "Invalid Google account payload" }, 401);
+    }
+
+    return c.json({
+      user: {
+        id: payload.sub,
+        email: payload.email,
+        name: payload.name ?? payload.email,
+        picture: payload.picture,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return c.json({ error: "Invalid Google credential" }, 401);
+  }
+});
 
 app.post("/api/analyze", async (c) => {
   const { fen } = await c.req.json();

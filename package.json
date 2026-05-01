@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "bootstrap": "^5.3.8",
+    "google-auth-library": "^10.5.0",
     "hono": "^4.12.15",
     "react-bootstrap": "^2.10.10",
     "stockfish": "^18.0.7"
