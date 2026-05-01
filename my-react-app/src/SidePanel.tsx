@@ -5,15 +5,44 @@ type SidePanelProps = {
   status: GameStatus;
 };
 
+function formatMoveLines(pgn: string) {
+  return pgn
+    .trim()
+    .split(/\s+/)
+    .reduce<string[]>((lines, token) => {
+      if (!token) return lines;
+
+      if (/^\d+\.$/.test(token)) {
+        lines.push(token);
+        return lines;
+      }
+
+      if (lines.length === 0) {
+        lines.push(token);
+        return lines;
+      }
+
+      const lastLine = lines[lines.length - 1];
+      if (/^\d+\.$/.test(lastLine)) {
+        lines[lines.length - 1] = `${lastLine} ${token}`;
+      } else {
+        lines.push(token);
+      }
+
+      return lines;
+    }, [])
+    .join("\n");
+}
+
 export default function SidePanel({ pgn, status }: SidePanelProps) {
   const headline = status.inCheckmate
-    ? `Checkmate — ${status.checkmateColor ?? "Unknown"} is in checkmate.`
+    ? `Checkmate - ${status.checkmateColor ?? "Unknown"} is in checkmate.`
     : status.inDraw
       ? "Draw."
       : status.inCheck
         ? `${status.checkColor ?? "Unknown"} king is in check.`
         : "No check.";
-  const moveLines = pgn.trim().replace(/\s+(?=\d+\.)/g, "\n");
+  const moveLines = formatMoveLines(pgn);
 
   return (
     <div
