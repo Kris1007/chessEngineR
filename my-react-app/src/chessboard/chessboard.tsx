@@ -27,6 +27,7 @@ export default function Chessboard({ setPgn, setStatus }: Props) {
   return (
     <div style={{
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         height: "100vh",
@@ -36,6 +37,12 @@ export default function Chessboard({ setPgn, setStatus }: Props) {
         title="Chessboard"
         style={{ width: "420px", height: "460px", border: "none" }}
         />
+        <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
+        <button id="flipOrientationBtn" style={{backgroundColor: "#FFB090", borderColor: "#FFB090"}}>Flip Orientation</button>
+        <button id="setStartBtn" style={{backgroundColor: "#FFB090", borderColor: "#FFB090"}}>Start Position</button>
+        <button id="saveButton" style={{backgroundColor: "#FFB090", borderColor: "#FFB090"}}>Save</button>
+        <button id="copyFen" style={{backgroundColor: "#FFB090", borderColor: "#FFB090"}}>&#128203; FEN</button>
+        </div>
     </div>
   )
 }
