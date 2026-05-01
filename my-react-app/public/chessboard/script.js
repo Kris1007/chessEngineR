@@ -90,7 +90,7 @@ function updateStatus() {
     var checkmateColor = game.in_checkmate()
       ? (turn === "w" ? "White" : "Black")
       : null;
-    bridge(game.pgn(), {
+    bridge(game.pgn(), game.fen(), {
       inCheck: game.in_check(),
       checkColor: checkColor,
       inCheckmate: game.in_checkmate(),

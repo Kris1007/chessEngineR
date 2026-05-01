@@ -1,8 +1,9 @@
-import type { GameStatus } from "./App";
+import type { GameStatus, TopMove } from "./App";
 
 type SidePanelProps = {
   pgn: string;
   status: GameStatus;
+  topMoves: TopMove[];
 };
 
 function formatMoveLines(pgn: string) {
@@ -29,7 +30,7 @@ function formatMoveLines(pgn: string) {
     .join("\n");
 }
 
-export default function SidePanel({ pgn, status }: SidePanelProps) {
+export default function SidePanel({ pgn, status, topMoves }: SidePanelProps) {
   const headline = status.inCheckmate
     ? `Checkmate - ${status.checkmateColor ?? "Unknown"} is in checkmate.`
     : status.inDraw
@@ -38,6 +39,7 @@ export default function SidePanel({ pgn, status }: SidePanelProps) {
         ? `${status.checkColor ?? "Unknown"} king is in check.`
         : "No check.";
   const moveLines = formatMoveLines(pgn);
+  const displayedTopMoves = topMoves.slice(0, 3);
 
   return (
     <div
@@ -55,6 +57,24 @@ export default function SidePanel({ pgn, status }: SidePanelProps) {
     >
       <div style={{ fontWeight: 700, marginBottom: 8 }}>Game</div>
       <div style={{ marginBottom: 8, fontWeight: 600 }}>{headline}</div>
+      <div style={{ fontWeight: 600, marginBottom: 6 }}>Top moves</div>
+      <div
+        style={{
+          background: "#F3F4F6",
+          borderRadius: 8,
+          padding: 10,
+          marginBottom: 8,
+          minHeight: 82,
+        }}
+      >
+        {displayedTopMoves.length === 0
+          ? "Analyzing..."
+          : displayedTopMoves.map((move, index) => (
+              <div key={`${move.move}-${index}`}>
+                {index + 1}. {move.move}
+              </div>
+            ))}
+      </div>
       <div style={{ fontWeight: 600, marginBottom: 6 }}>PGN</div>
       <pre
         style={{
