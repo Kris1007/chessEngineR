@@ -1,8 +1,11 @@
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import { getStoredUser } from './auth';
 
 function Header() {
+  const user = getStoredUser();
+
   return (
     <Navbar collapseOnSelect expand="lg" style={{ backgroundColor: "#FFB090" }}>
       <Container>
@@ -15,7 +18,7 @@ function Header() {
           </Nav>
           <Nav>
             <Nav.Link href="/user/logout">Logout</Nav.Link>
-            <Nav.Link>Username</Nav.Link>
+            <Nav.Link>{user?.name ?? "Username"}</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>

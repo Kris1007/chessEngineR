@@ -25,6 +25,116 @@
   flex: 0 1 320px;
 }
 
+.camera-tracker {
+  width: min(460px, calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px;
+  margin-bottom: 24px;
+  color: #2f241f;
+  background-color: #ffb090;
+  border: 2px solid #f08a6a;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(116, 59, 42, 0.16);
+}
+
+.camera-tracker-title {
+  margin: 0 0 10px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.camera-tracker-status {
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 8px 12px;
+  text-align: center;
+  background-color: #ffe5b4;
+  border: 1px solid rgba(116, 59, 42, 0.18);
+  border-radius: 8px;
+}
+
+.status-connected,
+.status-disconnected {
+  font-weight: 700;
+}
+
+.status-connected {
+  color: #176c3a;
+}
+
+.status-disconnected {
+  color: #a12620;
+}
+
+.camera-video-shell {
+  position: relative;
+  width: min(400px, 100%);
+  overflow: hidden;
+  background-color: #2f241f;
+  border: 3px solid #ffe5b4;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.camera-video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.calibration-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: #d62828;
+  border: 2px solid #fff6df;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(214, 40, 40, 0.22);
+}
+
+.camera-actions {
+  margin-top: 14px;
+}
+
+.camera-button {
+  min-width: 160px;
+  padding: 8px 14px;
+  color: #2f241f;
+  font-weight: 600;
+  background-color: #ffe5b4;
+  border: 1px solid rgba(116, 59, 42, 0.22);
+  border-radius: 8px;
+}
+
+.camera-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.camera-helper-text {
+  max-width: 390px;
+  margin: 12px 0 0;
+  color: #5f4639;
+  font-size: 12px;
+  text-align: center;
+}
+
+.camera-debug {
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px 10px;
+  overflow-wrap: break-word;
+  color: #3d3029;
+  background-color: #fff0cf;
+  border: 1px solid rgba(116, 59, 42, 0.16);
+  border-radius: 8px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  text-align: center;
+}
+
 @media (max-width: 900px) {
   .home-game-layout {
     flex-direction: column;

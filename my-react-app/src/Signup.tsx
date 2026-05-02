@@ -1,11 +1,17 @@
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
+import { useState } from "react";
+import { GoogleLogin } from "@react-oauth/google";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
 import Container from "react-bootstrap/Container";
+import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
-import { FcGoogle } from "react-icons/fc";
+import { loginWithGoogleCredential } from "./auth";
 
-function Login(){
+function Signup() {
+  const navigate = useNavigate();
+  const [authError, setAuthError] = useState("");
+
   return (
     <div
       style={{
@@ -27,13 +33,14 @@ function Login(){
       >
         <Container style={{ maxWidth: "420px" }}>
           <Form
+            onSubmit={(event) => event.preventDefault()}
             style={{
               backgroundColor: "#FFB090",
               padding: "24px",
               borderRadius: "12px",
             }}
           >
-            <h1 style={{textAlign: "center", marginBottom: "20px"}}>Sign Up</h1>
+            <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Sign Up</h1>
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>Email address</Form.Label>
               <Form.Control type="email" placeholder="Enter email" />
@@ -44,18 +51,51 @@ function Login(){
               <Form.Control type="password" placeholder="Password" />
             </Form.Group>
 
-            <Form.Group className="mb-3" controlId="formBasicPassword">
+            <Form.Group className="mb-3" controlId="formBasicConfirmPassword">
               <Form.Label>Confirm Password</Form.Label>
               <Form.Control type="password" placeholder="Password" />
             </Form.Group>
 
-            <Button variant="primary" style={{width: "37%", marginTop: "50px", backgroundColor: "#FFE5B4", borderColor: "#FFE5B4", color: "black"}} type="submit">
+            <Button
+              variant="primary"
+              style={{
+                width: "100%",
+                marginTop: "24px",
+                backgroundColor: "#FFE5B4",
+                borderColor: "#FFE5B4",
+                color: "black",
+              }}
+              type="submit"
+            >
               Register
             </Button>
-            <Button style={{marginTop: "50px", marginLeft: "10px", backgroundColor: "#FFE5B4", borderColor: "#FFE5B4", color: "black"}}>
-              <FcGoogle style={{ marginRight: "8px" }} />
-              Sign Up Using Google
-            </Button>
+
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
+              <GoogleLogin
+                text="signup_with"
+                onSuccess={async (credentialResponse) => {
+                  if (!credentialResponse.credential) {
+                    setAuthError("Google did not return a credential.");
+                    return;
+                  }
+
+                  try {
+                    await loginWithGoogleCredential(credentialResponse.credential);
+                    navigate("/home");
+                  } catch (error) {
+                    console.error(error);
+                    setAuthError("Could not sign up with Google.");
+                  }
+                }}
+                onError={() => setAuthError("Google sign-up was cancelled or failed.")}
+              />
+            </div>
+
+            {authError && (
+              <div style={{ marginTop: "12px", color: "#8A1F11", textAlign: "center" }}>
+                {authError}
+              </div>
+            )}
           </Form>
         </Container>
       </main>
@@ -65,4 +105,4 @@ function Login(){
   );
 }
 
-export default Login;
+export default Signup;
