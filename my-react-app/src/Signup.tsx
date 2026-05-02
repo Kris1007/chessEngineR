@@ -6,11 +6,31 @@ import Container from "react-bootstrap/Container";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
-import { loginWithGoogleCredential } from "./auth";
+import { loginWithGoogleCredential, signupWithEmail } from "./auth";
 
 function Signup() {
   const navigate = useNavigate();
   const [authError, setAuthError] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setAuthError("");
+
+    if (password !== confirmPassword) {
+      setAuthError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      await signupWithEmail({ email, password });
+      navigate("/home");
+    } catch (error: any) {
+      setAuthError(error.message || "Signup failed.");
+    }
+  };
 
   return (
     <div
@@ -33,7 +53,7 @@ function Signup() {
       >
         <Container style={{ maxWidth: "420px" }}>
           <Form
-            onSubmit={(event) => event.preventDefault()}
+            onSubmit={handleSubmit}
             style={{
               backgroundColor: "#FFB090",
               padding: "24px",
@@ -43,17 +63,35 @@ function Signup() {
             <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Sign Up</h1>
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>Email address</Form.Label>
-              <Form.Control type="email" placeholder="Enter email" />
+              <Form.Control
+                type="email"
+                placeholder="Enter email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicPassword">
               <Form.Label>Password</Form.Label>
-              <Form.Control type="password" placeholder="Password" />
+              <Form.Control
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicConfirmPassword">
               <Form.Label>Confirm Password</Form.Label>
-              <Form.Control type="password" placeholder="Password" />
+              <Form.Control
+                type="password"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
             </Form.Group>
 
             <Button

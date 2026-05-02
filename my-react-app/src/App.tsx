@@ -5,7 +5,23 @@ import Home from "./Home";
 import History from "./History";
 import Login from "./Login";
 import Signup from "./Signup";
-import { clearStoredUser } from "./auth";
+import { clearStoredUser, getStoredToken } from "./auth";
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const token = getStoredToken();
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+}
+
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const token = getStoredToken();
+  if (token) {
+    return <Navigate to="/home" replace />;
+  }
+  return <>{children}</>;
+}
 
 export type GameStatus = {
   inCheck: boolean;
@@ -34,10 +50,38 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <PublicRoute>
+              <Signup />
+            </PublicRoute>
+          }
+        />
         <Route path="/user/logout" element={<Logout />} />
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
