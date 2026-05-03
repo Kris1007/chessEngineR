@@ -6,14 +6,33 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
 import { db } from "./db";
-import { users } from "./db/schema";
-import { eq } from "drizzle-orm";
+import { savedGames, users } from "./db/schema";
+import { desc, eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 const app = new Hono();
 const googleClient = new OAuth2Client();
 
 app.use("*", cors());
+
+function isDatabaseConnectionError(error: unknown) {
+  const messages: string[] = [];
+  let current: unknown = error;
+
+  while (current instanceof Error) {
+    messages.push(current.message);
+    current = current.cause;
+  }
+
+  return messages.some(
+    (message) =>
+      message.includes("password authentication failed") ||
+      message.includes("DATABASE_URL") ||
+      message.includes("Database configuration is missing") ||
+      message.includes("ECONNREFUSED") ||
+      message.includes("ENOTFOUND")
+  );
+}
 
 app.post("/api/auth/signup", async (c) => {
   const { email, password, name } = await c.req.json();
@@ -42,7 +61,7 @@ app.post("/api/auth/signup", async (c) => {
       })
       .returning();
 
-    const secret = process.env.JWT_SECRET || "super-secret-development-key";
+    const secret = process.env.JWT_SECRET || process.env.SECRET || "super-secret-development-key";
     const token = await sign({ id: newUser.id, email: newUser.email }, secret);
 
     return c.json({
@@ -56,6 +75,9 @@ app.post("/api/auth/signup", async (c) => {
     });
   } catch (error) {
     console.error(error);
+    if (isDatabaseConnectionError(error)) {
+      return c.json({ error: "Database connection failed. Check the Postgres values in the root .env file." }, 500);
+    }
     return c.json({ error: "Signup failed" }, 500);
   }
 });
@@ -82,7 +104,7 @@ app.post("/api/auth/login", async (c) => {
       return c.json({ error: "Invalid credentials" }, 401);
     }
 
-    const secret = process.env.JWT_SECRET || "super-secret-development-key";
+    const secret = process.env.JWT_SECRET || process.env.SECRET || "super-secret-development-key";
     const token = await sign({ id: user.id, email: user.email }, secret);
 
     return c.json({
@@ -96,6 +118,9 @@ app.post("/api/auth/login", async (c) => {
     });
   } catch (error) {
     console.error(error);
+    if (isDatabaseConnectionError(error)) {
+      return c.json({ error: "Database connection failed. Check the Postgres values in the root .env file." }, 500);
+    }
     return c.json({ error: "Login failed" }, 500);
   }
 });
@@ -146,7 +171,7 @@ app.post("/api/auth/google", async (c) => {
         .returning();
     }
 
-    const secret = process.env.JWT_SECRET || "super-secret-development-key";
+    const secret = process.env.JWT_SECRET || process.env.SECRET || "super-secret-development-key";
     const token = await sign({ id: user.id, email: user.email }, secret);
 
     return c.json({
@@ -160,7 +185,73 @@ app.post("/api/auth/google", async (c) => {
     });
   } catch (error) {
     console.error(error);
+    if (isDatabaseConnectionError(error)) {
+      return c.json({ error: "Database connection failed. Check the Postgres values in the root .env file." }, 500);
+    }
     return c.json({ error: "Invalid Google credential" }, 401);
+  }
+});
+
+app.post("/api/saved-games", async (c) => {
+  const { fen, pgn } = await c.req.json();
+
+  if (!fen || typeof fen !== "string") {
+    return c.json({ error: "FEN is required" }, 400);
+  }
+
+  try {
+    const [savedGame] = await db
+      .insert(savedGames)
+      .values({ fen, pgn: pgn || "" })
+      .returning();
+
+    return c.json({ savedGame }, 201);
+  } catch (error) {
+    console.error(error);
+    if (isDatabaseConnectionError(error)) {
+      return c.json({ error: "Database connection failed. Check the Postgres values in the root .env file." }, 500);
+    }
+    return c.json({ error: "Could not save game" }, 500);
+  }
+});
+
+app.get("/api/saved-games", async (c) => {
+  try {
+    const games = await db
+      .select()
+      .from(savedGames)
+      .orderBy(desc(savedGames.createdAt));
+
+    return c.json({ games });
+  } catch (error) {
+    console.error(error);
+    if (isDatabaseConnectionError(error)) {
+      return c.json({ error: "Database connection failed. Check the Postgres values in the root .env file." }, 500);
+    }
+    return c.json({ error: "Could not load saved games" }, 500);
+  }
+});
+
+app.delete("/api/saved-games/:id", async (c) => {
+  const id = c.req.param("id");
+
+  try {
+    const [deletedGame] = await db
+      .delete(savedGames)
+      .where(eq(savedGames.id, id))
+      .returning();
+
+    if (!deletedGame) {
+      return c.json({ error: "Saved game not found" }, 404);
+    }
+
+    return c.json({ deletedGame });
+  } catch (error) {
+    console.error(error);
+    if (isDatabaseConnectionError(error)) {
+      return c.json({ error: "Database connection failed. Check the Postgres values in the root .env file." }, 500);
+    }
+    return c.json({ error: "Could not delete saved game" }, 500);
   }
 });
 

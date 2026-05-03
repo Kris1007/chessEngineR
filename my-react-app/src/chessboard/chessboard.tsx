@@ -5,26 +5,56 @@ type Props = {
   setPgn: (pgn: string) => void;
   setFen: (fen: string) => void;
   setStatus: (status: GameStatus) => void;
+  onSaveGame: (fen: string, pgn: string) => void;
+  onClearState: () => void;
+  initialFen?: string;
+  initialPgn?: string;
 };
 
 declare global {
   interface Window {
     updateReactState?: (pgn: string, fen: string, status: GameStatus) => void;
+    saveCurrentGame?: (fen: string, pgn: string) => void;
+    clearReactState?: () => void;
   }
 }
 
-export default function Chessboard({ setPgn, setFen, setStatus }: Props) {
+export default function Chessboard({ setPgn, setFen, setStatus, onSaveGame, onClearState, initialFen, initialPgn }: Props) {
   useEffect(() => {
     window.updateReactState = (nextPgn, nextFen, nextStatus) => {
       setPgn(nextPgn);
       setFen(nextFen);
       setStatus(nextStatus);
     };
+    window.saveCurrentGame = onSaveGame;
+    window.clearReactState = onClearState;
 
     return () => {
       delete window.updateReactState;
+      delete window.saveCurrentGame;
+      delete window.clearReactState;
     };
-  }, [setPgn, setFen, setStatus]);
+  }, [setPgn, setFen, setStatus, onSaveGame, onClearState]);
+
+  useEffect(() => {
+    if (!initialFen) return;
+
+    const iframe = document.querySelector<HTMLIFrameElement>('iframe[title="Chessboard"]');
+    const loadGame = () => {
+      const iframeWindow = iframe?.contentWindow as (Window & {
+        loadGameFromReact?: (fen: string, pgn?: string) => boolean;
+      }) | null;
+
+      iframeWindow?.loadGameFromReact?.(initialFen, initialPgn);
+    };
+
+    iframe?.addEventListener("load", loadGame);
+    loadGame();
+
+    return () => {
+      iframe?.removeEventListener("load", loadGame);
+    };
+  }, [initialFen, initialPgn]);
 
   return (
     <div style={{

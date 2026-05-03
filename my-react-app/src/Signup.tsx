@@ -120,9 +120,9 @@ function Signup() {
                   try {
                     await loginWithGoogleCredential(credentialResponse.credential);
                     navigate("/home");
-                  } catch (error) {
+                  } catch (error: any) {
                     console.error(error);
-                    setAuthError("Could not sign up with Google.");
+                    setAuthError(error.message || "Could not sign up with Google.");
                   }
                 }}
                 onError={() => setAuthError("Google sign-up was cancelled or failed.")}

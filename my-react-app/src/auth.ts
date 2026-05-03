@@ -39,7 +39,8 @@ export async function loginWithGoogleCredential(credential: string) {
   });
 
   if (!response.ok) {
-    throw new Error("Google sign-in failed.");
+    const error = await readAuthError(response);
+    throw new Error(error || "Google sign-in failed.");
   }
 
   const data = (await response.json()) as { user: AuthUser; token: string };
@@ -58,8 +59,8 @@ export async function loginWithEmail(payload: any) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Login failed.");
+    const error = await readAuthError(response);
+    throw new Error(error || "Login failed.");
   }
 
   const data = (await response.json()) as { user: AuthUser; token: string };
@@ -78,12 +79,21 @@ export async function signupWithEmail(payload: any) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Signup failed.");
+    const error = await readAuthError(response);
+    throw new Error(error || "Signup failed.");
   }
 
   const data = (await response.json()) as { user: AuthUser; token: string };
   localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
   localStorage.setItem(AUTH_TOKEN_KEY, data.token);
   return data.user;
+}
+
+async function readAuthError(response: Response) {
+  try {
+    const error = (await response.json()) as { error?: string };
+    return error.error;
+  } catch {
+    return "";
+  }
 }
