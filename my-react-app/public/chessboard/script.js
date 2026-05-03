@@ -111,7 +111,6 @@ var config = {
   onMouseoutSquare: onMouseoutSquare,
 };
 
-
 board1 = ChessBoard("board1", config);
 
 var flipOrientationBtn =
@@ -131,6 +130,10 @@ if (setStartBtn) {
     game = new Chess();
     board1.start();
     updateStatus();
+
+    if (window.parent && window.parent.clearReactState) {
+      window.parent.clearReactState();
+    }
   });
 }
 

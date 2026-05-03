@@ -6,7 +6,7 @@ import Footer from "./Footer";
 import SidePanel from "./SidePanel";
 import CameraTracker from "./CameraTracker";
 import type { GameStatus, TopMove } from "./App";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const initialStatus: GameStatus = {
   inCheck: false,
@@ -18,6 +18,7 @@ const initialStatus: GameStatus = {
 
 export default function Home() {
   const location = useLocation();
+  const navigate = useNavigate();
   const state = location.state as { fen?: string; pgn?: string } | null;
   const savedFen = state?.fen;
   const savedPgn = state?.pgn;
@@ -40,6 +41,11 @@ export default function Home() {
       }
     }
   };
+
+  const handleClearState = () => {
+    navigate(location.pathname, { replace: true, state: {} });
+  };
+
   const [fen, setFen] = useState("");
   const [status, setStatus] = useState<GameStatus>(initialStatus);
   const [topMoves, setTopMoves] = useState<TopMove[]>([]);
@@ -62,7 +68,7 @@ export default function Home() {
         throw new Error(data.error || "Could not save game.");
       }
 
-      setSaveMessage(`Saved game #${data.savedGame.gameNumber}.`);
+      setSaveMessage("Game saved successfully.");
     } catch (error) {
       console.error(error);
       setSaveMessage(error instanceof Error ? error.message : "Could not save game.");
@@ -122,6 +128,7 @@ export default function Home() {
             setFen={setFen}
             setStatus={setStatus}
             onSaveGame={handleSaveGame}
+            onClearState={handleClearState}
             initialFen={savedFen}
             initialPgn={savedPgn}
           />

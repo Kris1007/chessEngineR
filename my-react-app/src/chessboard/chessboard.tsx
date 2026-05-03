@@ -6,6 +6,7 @@ type Props = {
   setFen: (fen: string) => void;
   setStatus: (status: GameStatus) => void;
   onSaveGame: (fen: string, pgn: string) => void;
+  onClearState: () => void;
   initialFen?: string;
   initialPgn?: string;
 };
@@ -14,10 +15,11 @@ declare global {
   interface Window {
     updateReactState?: (pgn: string, fen: string, status: GameStatus) => void;
     saveCurrentGame?: (fen: string, pgn: string) => void;
+    clearReactState?: () => void;
   }
 }
 
-export default function Chessboard({ setPgn, setFen, setStatus, onSaveGame, initialFen, initialPgn }: Props) {
+export default function Chessboard({ setPgn, setFen, setStatus, onSaveGame, onClearState, initialFen, initialPgn }: Props) {
   useEffect(() => {
     window.updateReactState = (nextPgn, nextFen, nextStatus) => {
       setPgn(nextPgn);
@@ -25,12 +27,14 @@ export default function Chessboard({ setPgn, setFen, setStatus, onSaveGame, init
       setStatus(nextStatus);
     };
     window.saveCurrentGame = onSaveGame;
+    window.clearReactState = onClearState;
 
     return () => {
       delete window.updateReactState;
       delete window.saveCurrentGame;
+      delete window.clearReactState;
     };
-  }, [setPgn, setFen, setStatus, onSaveGame]);
+  }, [setPgn, setFen, setStatus, onSaveGame, onClearState]);
 
   useEffect(() => {
     if (!initialFen) return;

@@ -5,7 +5,6 @@ import Footer from "./Footer";
 
 type SavedGame = {
   id: string;
-  gameNumber: number;
   fen: string;
   pgn: string;
   createdAt: string;

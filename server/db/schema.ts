@@ -16,7 +16,6 @@ export type NewUser = typeof users.$inferInsert;
 
 export const savedGames = pgTable("saved_games", {
   id: uuid("id").primaryKey().defaultRandom(),
-  gameNumber: serial("game_number").notNull().unique(),
   fen: text("fen").notNull(),
   pgn: text("pgn").default(""),
   createdAt: timestamp("created_at").defaultNow().notNull(),
