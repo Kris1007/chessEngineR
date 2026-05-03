@@ -28,7 +28,6 @@ export default function Home() {
     const iframe = document.querySelector('iframe');
     if (iframe && iframe.contentWindow && (iframe.contentWindow as any).makeMoveFromReact) {
       const makeMove = (iframe.contentWindow as any).makeMoveFromReact;
-      // Try every possible pair of changed squares until one is a legal chess move
       for (let i = 0; i < squares.length; i++) {
         for (let j = 0; j < squares.length; j++) {
           if (i !== j) {

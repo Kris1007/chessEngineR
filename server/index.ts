@@ -163,7 +163,6 @@ app.post("/api/auth/google", async (c) => {
         })
         .returning();
     } else if (!user.googleId) {
-      // Link Google ID to existing email account
       [user] = await db
         .update(users)
         .set({ googleId: payload.sub, picture: payload.picture || user.picture })

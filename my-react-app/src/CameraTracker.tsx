@@ -15,7 +15,6 @@ export default function CameraTracker({ onMoveDetected }: CameraTrackerProps) {
   const onMoveRef = useRef(onMoveDetected);
   onMoveRef.current = onMoveDetected;
 
-  // Start default camera
   useEffect(() => {
     async function startCamera() {
       try {
@@ -36,7 +35,6 @@ export default function CameraTracker({ onMoveDetected }: CameraTrackerProps) {
     };
   }, []);
 
-  // WebSocket connection
   useEffect(() => {
     const socket = new WebSocket("ws://localhost:8765");
 
@@ -76,7 +74,6 @@ export default function CameraTracker({ onMoveDetected }: CameraTrackerProps) {
     return () => { socket.close(); };
   }, []);
 
-  // Frame capture loop
   useEffect(() => {
     if (!connected || !ws || calibrating) return;
 
@@ -145,7 +142,6 @@ export default function CameraTracker({ onMoveDetected }: CameraTrackerProps) {
           className="camera-video"
         />
 
-        {/* Draw calibration dots */}
         {corners.map((c, i) => (
           <div
             key={i}
@@ -161,7 +157,6 @@ export default function CameraTracker({ onMoveDetected }: CameraTrackerProps) {
         ))}
       </div>
 
-      {/* Hidden canvas for frame capture */}
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
       <div className="camera-actions">
