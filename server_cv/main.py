@@ -32,7 +32,6 @@ def get_board_grid(frame, corners):
     files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     ranks = ['8', '7', '6', '5', '4', '3', '2', '1']
     
-    # Store mean intensity per square
     squares = []
     for row in range(8):
         for col in range(8):
@@ -44,7 +43,6 @@ def get_board_grid(frame, corners):
     return squares
 
 def compare_grids(grid_a, grid_b):
-    """Compare two grids and return list of (square_name, abs_change) sorted by change descending."""
     differences = []
     for i in range(64):
         name = grid_a[i][0]
@@ -58,7 +56,6 @@ async def handle_connection(websocket):
     log("Client connected!")
     frame_count = 0
     
-    # Reset state for new connection
     baseline_grid = None
     prev_grid = None
     stable_frames_count = 0
@@ -115,7 +112,6 @@ async def handle_connection(websocket):
                 if frame_count % 5 == 0:
                     log(f"Frame #{frame_count} | {sq1}={ch1:.1f}, {sq2}={ch2:.1f}, {sq3}={ch3:.1f} | motion={max_motion:.1f} | stable={stable_frames_count}")
                 
-                # Send debug info
                 await websocket.send(json.dumps({
                     "debug": True,
                     "top": [
@@ -130,9 +126,7 @@ async def handle_connection(websocket):
                 if ch1 > MOVE_THRESHOLD and ch2 > MOVE_THRESHOLD and max_motion < MOTION_THRESHOLD:
                     stable_frames_count += 1
                     if stable_frames_count >= 3:
-                        # Find all squares that changed significantly
                         changed_squares = [name for name, diff in diffs_from_baseline if diff > MOVE_THRESHOLD]
-                        # Ensure we at least include the top 2 if thresholds were barely missed
                         if sq1 not in changed_squares: changed_squares.append(sq1)
                         if sq2 not in changed_squares: changed_squares.append(sq2)
                         
@@ -141,7 +135,6 @@ async def handle_connection(websocket):
                             "move": True,
                             "squares": changed_squares
                         }))
-                        # Update baseline to new board state
                         baseline_grid = current_grid
                         stable_frames_count = 0
                 elif max_motion > MOTION_THRESHOLD:
