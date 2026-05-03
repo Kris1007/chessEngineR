@@ -141,10 +141,23 @@ export default function History() {
     }
   };
 
+  const handleExportCSV = (pgn: string, createdAt: string) => {
+    const csvContent = `PGN\n"${pgn.replace(/"/g, '""')}"`;
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `chess_game_${new Date(createdAt).getTime()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
-    <div style={{ backgroundColor: "#FFE5B4", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: "#FFE5B4", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Header />
-      <main style={{ padding: "24px", maxWidth: 1100, margin: "0 auto" }}>
+      <main style={{ padding: "24px", maxWidth: 1100, margin: "0 auto", flex: 1 }}>
         <h1 style={{ textAlign: "center", marginBottom: 24 }}>History</h1>
 
         {loading && <p style={{ textAlign: "center" }}>Loading saved games...</p>}
@@ -155,10 +168,14 @@ export default function History() {
 
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, 320px)",
-            justifyContent: "center",
+            display: "flex",
+            flexDirection: "row",
+            overflowX: "auto",
             gap: 24,
+            padding: "20px 0",
+            width: "100%",
+            scrollbarWidth: "thin",
+            scrollbarColor: "#FFB090 #FFE5B4"
           }}
         >
           {games.map((game) => (
@@ -184,31 +201,74 @@ export default function History() {
                 borderRadius: 8,
                 cursor: "pointer",
                 aspectRatio: "1",
+                minWidth: "320px",
+                flexShrink: 0,
                 overflow: "hidden"
               }}
             >
-              <div style={{ fontWeight: 700 }}>{new Date(game.createdAt).toLocaleString()}</div>
+              <div style={{ fontWeight: 700 }}>
+                {(() => {
+                  try {
+                    const dStr = game.createdAt;
+                    // Treat the string as local time by removing UTC markers if present
+                    const localStr = dStr.replace("Z", "").replace("T", " ");
+                    const date = new Date(localStr);
+                    
+                    return date.toLocaleString("en-IN", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true
+                    });
+                  } catch (e) {
+                    return "Invalid Date";
+                  }
+                })()}
+              </div>
               <FenBoard fen={game.fen} />
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  deleteSavedGame(game.id);
-                }}
-                disabled={deletingId === game.id}
-                style={{
-                  width: "100%",
-                  padding: "6px 12px",
-                  color: "#2F241F",
-                  fontWeight: 600,
-                  backgroundColor: "#FFE5B4",
-                  border: "1px solid rgba(122, 74, 53, 0.35)",
-                  borderRadius: 6,
-                  cursor: deletingId === game.id ? "not-allowed" : "pointer",
-                }}
-              >
-                {deletingId === game.id ? "Deleting..." : "Delete Game"}
-              </button>
+              <div style={{ display: "flex", gap: "8px", width: "100%" }}>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    handleExportCSV(game.pgn, game.createdAt);
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: "6px 12px",
+                    color: "#2F241F",
+                    fontWeight: 600,
+                    backgroundColor: "#FFE5B4",
+                    border: "1px solid rgba(122, 74, 53, 0.35)",
+                    borderRadius: 6,
+                    cursor: "pointer",
+                  }}
+                >
+                  CSV
+                </button>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    deleteSavedGame(game.id);
+                  }}
+                  disabled={deletingId === game.id}
+                  style={{
+                    flex: 2,
+                    padding: "6px 12px",
+                    color: "#2F241F",
+                    fontWeight: 600,
+                    backgroundColor: "#FFE5B4",
+                    border: "1px solid rgba(122, 74, 53, 0.35)",
+                    borderRadius: 6,
+                    cursor: deletingId === game.id ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {deletingId === game.id ? "Deleting..." : "Delete"}
+                </button>
+              </div>
             </section>
           ))}
         </div>
