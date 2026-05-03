@@ -210,7 +210,6 @@ export default function History() {
                 {(() => {
                   try {
                     const dStr = game.createdAt;
-                    // Treat the string as local time by removing UTC markers if present
                     const localStr = dStr.replace("Z", "").replace("T", " ");
                     const date = new Date(localStr);
                     

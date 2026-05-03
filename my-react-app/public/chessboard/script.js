@@ -81,7 +81,6 @@ function updateStatus() {
   fenElement.innerHTML = game.fen();
   pgnElement.innerHTML = game.pgn();
   
-  // If we're running inside the React iframe, notify the parent window.
   var bridge =
     (window.parent && window.parent.updateReactState) || window.updateReactState;
   if (bridge) {

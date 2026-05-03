@@ -32,7 +32,7 @@ def get_board_grid(frame, corners):
     files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     ranks = ['8', '7', '6', '5', '4', '3', '2', '1']
     
-    # Store mean intensity per square instead of full image
+    # Store mean intensity per square
     squares = []
     for row in range(8):
         for col in range(8):
@@ -96,10 +96,9 @@ async def handle_connection(websocket):
                     await websocket.send(json.dumps({"status": "calibrated"}))
                     continue
                 
-                # Compare current frame to BASELINE
+                
                 diffs_from_baseline = compare_grids(baseline_grid, current_grid)
                 
-                # Compare current frame to PREVIOUS frame (to detect stability)
                 diffs_from_prev = compare_grids(prev_grid, current_grid)
                 prev_grid = current_grid
                 
@@ -107,14 +106,11 @@ async def handle_connection(websocket):
                 sq2, ch2 = diffs_from_baseline[1]
                 sq3, ch3 = diffs_from_baseline[2]
                 
-                # How much the frame changed from the PREVIOUS frame (motion detection)
                 max_motion = diffs_from_prev[0][1]
                 
-                # A piece move changes the mean intensity of a square significantly
-                # (piece appears or disappears from a square)
-                MOVE_THRESHOLD = 15  # Mean intensity difference
-                NOISE_THRESHOLD = 8  # Below this, it's just camera noise
-                MOTION_THRESHOLD = 5  # If frame-to-frame change is small, the scene is stable
+                MOVE_THRESHOLD = 15
+                NOISE_THRESHOLD = 8
+                MOTION_THRESHOLD = 5
                 
                 if frame_count % 5 == 0:
                     log(f"Frame #{frame_count} | {sq1}={ch1:.1f}, {sq2}={ch2:.1f}, {sq3}={ch3:.1f} | motion={max_motion:.1f} | stable={stable_frames_count}")
@@ -131,11 +127,7 @@ async def handle_connection(websocket):
                     "motion": round(max_motion, 1)
                 }))
                 
-                # Check: top 2 squares changed significantly, and scene is stable (no hand moving)
                 if ch1 > MOVE_THRESHOLD and ch2 > MOVE_THRESHOLD and max_motion < MOTION_THRESHOLD:
-                    # Normal move (or castling where up to 4 squares change)
-                    # Even if 10 squares changed due to camera shake/exposure, we trust the top 2
-                    # squares are the source and destination. chess.js will reject it if it's an illegal move.
                     stable_frames_count += 1
                     if stable_frames_count >= 3:
                         # Find all squares that changed significantly
@@ -153,10 +145,8 @@ async def handle_connection(websocket):
                         baseline_grid = current_grid
                         stable_frames_count = 0
                 elif max_motion > MOTION_THRESHOLD:
-                    # Hand is moving in the frame, reset stability counter
                     stable_frames_count = 0
                 else:
-                    # Scene is stable, but no move is detected. Reset counter so previous half-moves don't bleed over.
                     stable_frames_count = 0
 
     except Exception as e:
