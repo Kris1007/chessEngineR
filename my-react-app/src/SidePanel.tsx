@@ -7,8 +7,10 @@ type SidePanelProps = {
 };
 
 function formatMoveLines(pgn: string) {
-  return pgn
-    .trim()
+  const movesOnly = pgn.replace(/\[.*?\]/g, "").trim();
+  if (!movesOnly) return "";
+
+  return movesOnly
     .split(/\s+/)
     .reduce<string[]>((lines, token) => {
       if (!token) return lines;

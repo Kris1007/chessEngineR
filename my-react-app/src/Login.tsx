@@ -101,9 +101,9 @@ function Login() {
                   try {
                     await loginWithGoogleCredential(credentialResponse.credential);
                     navigate("/home");
-                  } catch (error) {
+                  } catch (error: any) {
                     console.error(error);
-                    setAuthError("Could not sign in with Google.");
+                    setAuthError(error.message || "Could not sign in with Google.");
                   }
                 }}
                 onError={() => setAuthError("Google sign-in was cancelled or failed.")}

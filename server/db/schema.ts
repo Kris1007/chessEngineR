@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -13,3 +13,14 @@ export const users = pgTable("users", {
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+
+export const savedGames = pgTable("saved_games", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  gameNumber: serial("game_number").notNull().unique(),
+  fen: text("fen").notNull(),
+  pgn: text("pgn").default(""),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type SavedGame = typeof savedGames.$inferSelect;
+export type NewSavedGame = typeof savedGames.$inferInsert;

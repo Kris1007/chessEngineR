@@ -6,6 +6,7 @@ import Footer from "./Footer";
 import SidePanel from "./SidePanel";
 import CameraTracker from "./CameraTracker";
 import type { GameStatus, TopMove } from "./App";
+import { useLocation } from "react-router-dom";
 
 const initialStatus: GameStatus = {
   inCheck: false,
@@ -16,6 +17,10 @@ const initialStatus: GameStatus = {
 };
 
 export default function Home() {
+  const location = useLocation();
+  const state = location.state as { fen?: string; pgn?: string } | null;
+  const savedFen = state?.fen;
+  const savedPgn = state?.pgn;
   const [pgn, setPgn] = useState("");
 
   const handleMoveDetected = (squares: string[]) => {
@@ -38,6 +43,31 @@ export default function Home() {
   const [fen, setFen] = useState("");
   const [status, setStatus] = useState<GameStatus>(initialStatus);
   const [topMoves, setTopMoves] = useState<TopMove[]>([]);
+  const [saveMessage, setSaveMessage] = useState("");
+
+  const handleSaveGame = async (fenToSave: string, pgnToSave: string) => {
+    setSaveMessage("");
+
+    try {
+      const response = await fetch("/api/saved-games", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fen: fenToSave, pgn: pgnToSave }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Could not save game.");
+      }
+
+      setSaveMessage(`Saved game #${data.savedGame.gameNumber}.`);
+    } catch (error) {
+      console.error(error);
+      setSaveMessage(error instanceof Error ? error.message : "Could not save game.");
+    }
+  };
 
   useEffect(() => {
     if (!fen) return;
@@ -87,7 +117,17 @@ export default function Home() {
               })()} 
             />
           </ProgressBar>
-          <Chessboard setPgn={setPgn} setFen={setFen} setStatus={setStatus} />
+          <Chessboard
+            setPgn={setPgn}
+            setFen={setFen}
+            setStatus={setStatus}
+            onSaveGame={handleSaveGame}
+            initialFen={savedFen}
+            initialPgn={savedPgn}
+          />
+          {saveMessage && (
+            <div style={{ color: "#4B2E24", fontWeight: 600 }}>{saveMessage}</div>
+          )}
         </div>
         <div className="home-side-panel-column">
           <SidePanel pgn={pgn} status={status} topMoves={topMoves} />

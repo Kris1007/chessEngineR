@@ -103,7 +103,7 @@ function updateStatus() {
 var config = {
   draggable: true,
   position: "start",
-  pieceTheme: "https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png",
+  pieceTheme: "/chessboard/img/chesspieces/wikipedia/{piece}.png",
   onDragStart: onDragStart,
   onDrop: onDrop,
   onSnapEnd: onSnapEnd,
@@ -156,6 +156,18 @@ if (copyFenBtn) {
   });
 }
 
+var saveButton = window.parent.document.querySelector("#saveButton");
+
+if (saveButton) {
+  saveButton.addEventListener("click", function () {
+    var saveGame = window.parent && window.parent.saveCurrentGame;
+
+    if (saveGame) {
+      saveGame(game.fen(), game.pgn());
+    }
+  });
+}
+
 window.makeMoveFromReact = function(source, target) {
   var move = game.move({
     from: source,
@@ -163,6 +175,23 @@ window.makeMoveFromReact = function(source, target) {
     promotion: "q",
   });
   if (move === null) return false;
+  board1.position(game.fen());
+  updateStatus();
+  return true;
+};
+
+window.loadGameFromReact = function(fen, pgn) {
+  var loadedGame;
+  if (pgn) {
+    loadedGame = new Chess();
+    loadedGame.load_pgn(pgn);
+  } else {
+    loadedGame = new Chess(fen);
+  }
+
+  if (!loadedGame) return false;
+
+  game = loadedGame;
   board1.position(game.fen());
   updateStatus();
   return true;
